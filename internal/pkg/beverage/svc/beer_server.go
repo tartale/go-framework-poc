@@ -8,14 +8,14 @@ type GetBeerRequest struct {
 type UnaryBeerResponse struct {
 }
 
-type IBeerServer interface {
-	GetBeer(ctx context.Context, request *GetBeerRequest)
+type BeerSvcHandler interface {
+	GetBeer(context.Context, *GetBeerRequest, *UnaryBeerResponse) error
 }
 
 type BeerServer struct {
 }
 
-func NewBeerServer() *BeerServer {
+func NewBeerServer() BeerSvcHandler {
 	return &BeerServer{}
 }
 

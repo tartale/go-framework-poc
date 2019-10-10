@@ -9,19 +9,19 @@ import (
 	"github.com/logrhythm/go-framework-poc/internal/pkg/authn"
 )
 
-type AuthZ struct {
+type Authorizer struct {
 	enforcer *casbin.Enforcer
 }
 
-func NewAuthZ(modelPath string, policyPath string) (*AuthZ, error) {
+func NewAuthorizer(modelPath string, policyPath string) (*Authorizer, error) {
 	e, err := casbin.NewEnforcer(modelPath, policyPath)
 	if err != nil {
 		return nil, err
 	}
-	return &AuthZ{enforcer: e}, nil
+	return &Authorizer{enforcer: e}, nil
 }
 
-func (o *AuthZ) Authorize(ctx context.Context, f func(params ...interface{}) error) error {
+func (o *Authorizer) Authorize(ctx context.Context, fn ...interface{}) error {
 	jwt := ctx.Value("jwt").(authn.JWT)
 	allowed, err := o.enforcer.Enforce(jwt.Sub, jwt.Obj, jwt.Act)
 	if err != nil {
@@ -30,5 +30,5 @@ func (o *AuthZ) Authorize(ctx context.Context, f func(params ...interface{}) err
 	if !allowed {
 		return errors.New("Unauthorized")
 	}
-	return f(ctx)
+	return fn(ctx)
 }
